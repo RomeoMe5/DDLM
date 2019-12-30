@@ -1,0 +1,569 @@
+<a href="https://code.google.com/p/fpga-examples/source/browse/trunk/showroom/isqrt/">https://code.google.com/p/fpga-examples/source/browse/trunk/showroom/isqrt/</a>
+
+Hacker's Delight (2nd Edition) by Henry S. Warren
+
+<a href="http://www.amazon.com/Hackers-Delight-Edition-Henry-Warren/dp/0321842685">http://www.amazon.com/Hackers-Delight-Edition-Henry-Warren/dp/0321842685</a>
+
+<a href="http://www.amazon.com/Hackers-Delight-Edition-Henry-Warren/dp/0321842685"><img src="http://ecx.images-amazon.com/images/I/41w4OmytL3L._BO2,204,203,200_PIsitb-sticker-arrow-click,TopRight,35,-76_AA300_SH20_OU01_.jpg"></a>
+
+<a href="http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/001_software_implementation/isqrt.c">http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/001_software_implementation/isqrt.c</a>
+
+<pre>
+unsigned isqrt (unsigned x)
+{
+    unsigned m, y, b;
+
+    m = 0x40000000;
+    y = 0;
+
+    while (m != 0)  // Do 16 times
+    {
+        b = y |  m;
+        y >>= 1;
+            
+        if (x >= b)
+        {
+            x -= b;
+            y |= m;
+        }
+            
+        m >>= 2;
+    }
+
+    return y;
+}
+</pre>
+
+<a href="http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/001_software_implementation/test.c">http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/001_software_implementation/test.c</a>
+
+<a href="http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/002_combinational_unstructured/isqrt.v">http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/002_combinational_unstructured/isqrt.v</a>
+
+<pre>
+// combinational unstructured
+
+module isqrt
+(
+    input      [31:0] x,
+    output reg [15:0] y
+);
+
+    reg [31:0] m, tx, ty, b;
+
+    always @*
+    begin
+        m  = 31'h4000_0000;
+        tx = x;
+        ty = 0;
+    
+        repeat (16)
+        begin
+            b  = ty |  m;
+            ty = ty >> 1;
+            
+            if (tx >= b)
+            begin
+                tx = tx - b;
+                ty = ty | m;
+            end
+            
+            m = m >> 2;
+        end
+
+        y = ty [15:0];
+    end
+
+endmodule
+</pre>
+
+<img src="http://panchul.com/education/2013_05_19_isqrt/isqrt_combinational_unstructured_fragment.png">
+
+<a href="http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/003_sequential/isqrt.v">http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/003_sequential/isqrt.v</a>
+
+<pre>
+// sequential
+
+module isqrt
+(
+    input             clock,
+    input             reset_n,
+    input             run,
+    input      [31:0] x,
+    output reg        ready,
+    output reg [15:0] y
+);
+
+    reg [31:0] m,  r_m;
+    reg [31:0] tx, r_tx;
+    reg [31:0] ty, r_ty;
+    reg [31:0] b,  r_b;
+
+    reg new_ready;
+
+    always @*
+    begin
+        if (run)
+        begin
+            m  = 31'h4000_0000;
+            tx = x;
+            ty = 0;
+        end
+        else
+        begin
+            m  = r_m;
+            tx = r_tx;
+            ty = r_ty;
+        end
+    
+        b  = ty |  m;
+        ty = ty >> 1;
+            
+        if (tx >= b)
+        begin
+            tx = tx - b;
+            ty = ty | m;
+        end
+
+        new_ready = m [0];
+            
+        m = m >> 2;
+    end
+
+    always @(posedge clock or negedge reset_n)
+    begin
+        if (! reset_n)
+        begin
+            ready <= 0;
+            y     <= 0;
+        end
+        else if (new_ready)
+        begin
+            ready <= 1;
+            y     <= ty [15:0];
+        end
+        else
+        begin
+            ready <= 0;
+
+            r_m   <= m;
+            r_tx  <= tx;
+            r_ty  <= ty;
+            r_b   <= b;
+
+        end
+    end
+
+endmodule
+</pre>
+
+
+<a href="http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/004_combinational_structured_no_generate/isqrt_slice.v">http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/004_combinational_structured_no_generate/isqrt_slice.v</a>
+
+<pre>
+module isqrt_slice
+(
+    input  [31:0] ix,
+    input  [31:0] iy,
+    output [31:0] ox,
+    output [31:0] oy
+);
+
+    parameter [31:0] m = 32'h4000_0000;
+
+    wire [31:0] b      = iy | m;
+    wire        x_ge_b = ix >= b;
+
+    assign ox = x_ge_b ? ix - b : ix;
+    assign oy = (iy >> 1) | (x_ge_b ? m : 0);
+
+endmodule
+</pre>
+
+<img src="http://panchul.com/education/2013_05_19_isqrt/isqrt_slice_comb.png">
+
+<a href="http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/004_combinational_structured_no_generate/isqrt.v">http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/004_combinational_structured_no_generate/isqrt.v</a>
+
+<pre>
+// combinational structured no generate
+
+module isqrt
+(
+    input  [31:0] x,
+    output [15:0] y
+);
+
+    localparam [31:0] m = 32'h4000_0000;
+
+    wire [31:0] wx [0:16], wy [0:16];
+
+    assign wx [0] = x;
+    assign wy [0] = 0;
+
+    isqrt_slice #(m >>  0 * 2) i00 (wx [ 0], wy [ 0], wx [ 1], wy [ 1]);
+    isqrt_slice #(m >>  1 * 2) i01 (wx [ 1], wy [ 1], wx [ 2], wy [ 2]);
+    isqrt_slice #(m >>  2 * 2) i02 (wx [ 2], wy [ 2], wx [ 3], wy [ 3]);
+    isqrt_slice #(m >>  3 * 2) i03 (wx [ 3], wy [ 3], wx [ 4], wy [ 4]);
+    isqrt_slice #(m >>  4 * 2) i04 (wx [ 4], wy [ 4], wx [ 5], wy [ 5]);
+    isqrt_slice #(m >>  5 * 2) i05 (wx [ 5], wy [ 5], wx [ 6], wy [ 6]);
+    isqrt_slice #(m >>  6 * 2) i06 (wx [ 6], wy [ 6], wx [ 7], wy [ 7]);
+    isqrt_slice #(m >>  7 * 2) i07 (wx [ 7], wy [ 7], wx [ 8], wy [ 8]);
+    isqrt_slice #(m >>  8 * 2) i08 (wx [ 8], wy [ 8], wx [ 9], wy [ 9]);
+    isqrt_slice #(m >>  9 * 2) i09 (wx [ 9], wy [ 9], wx [10], wy [10]);
+    isqrt_slice #(m >> 10 * 2) i10 (wx [10], wy [10], wx [11], wy [11]);
+    isqrt_slice #(m >> 11 * 2) i11 (wx [11], wy [11], wx [12], wy [12]);
+    isqrt_slice #(m >> 12 * 2) i12 (wx [12], wy [12], wx [13], wy [13]);
+    isqrt_slice #(m >> 13 * 2) i13 (wx [13], wy [13], wx [14], wy [14]);
+    isqrt_slice #(m >> 14 * 2) i14 (wx [14], wy [14], wx [15], wy [15]);
+    isqrt_slice #(m >> 15 * 2) i15 (wx [15], wy [15], wx [16], wy [16]);
+
+    assign y = wy [16];
+
+endmodule
+</pre>
+
+<img src="http://panchul.com/education/2013_05_19_isqrt/isqrt_combinational_structured.png">
+
+<img src="http://panchul.com/education/2013_05_19_isqrt/isqrt_combinational_structured_fragment.png">
+
+<a href="http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/005_combinational_structured_rigid_no_generate/isqrt.v">http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/005_combinational_structured_rigid_no_generate/isqrt.v</a>
+
+<pre>
+// combinational structured rigid no generate
+
+module isqrt
+(
+    input  [31:0] x,
+    output [15:0] y
+);
+
+    localparam [31:0] m = 32'h4000_0000;
+
+    wire [31:0] ix [0:15], iy [0:15];
+    wire [31:0] ox [0:15], oy [0:15];
+
+    isqrt_slice #(.m (m >>  0 * 2)) i00 (.ix (ix [ 0]), .iy (iy [ 0]), .ox (ox [ 0]), .oy (oy [ 0]));
+    isqrt_slice #(.m (m >>  1 * 2)) i01 (.ix (ix [ 1]), .iy (iy [ 1]), .ox (ox [ 1]), .oy (oy [ 1]));
+    isqrt_slice #(.m (m >>  2 * 2)) i02 (.ix (ix [ 2]), .iy (iy [ 2]), .ox (ox [ 2]), .oy (oy [ 2]));
+    isqrt_slice #(.m (m >>  3 * 2)) i03 (.ix (ix [ 3]), .iy (iy [ 3]), .ox (ox [ 3]), .oy (oy [ 3]));
+    isqrt_slice #(.m (m >>  4 * 2)) i04 (.ix (ix [ 4]), .iy (iy [ 4]), .ox (ox [ 4]), .oy (oy [ 4]));
+    isqrt_slice #(.m (m >>  5 * 2)) i05 (.ix (ix [ 5]), .iy (iy [ 5]), .ox (ox [ 5]), .oy (oy [ 5]));
+    isqrt_slice #(.m (m >>  6 * 2)) i06 (.ix (ix [ 6]), .iy (iy [ 6]), .ox (ox [ 6]), .oy (oy [ 6]));
+    isqrt_slice #(.m (m >>  7 * 2)) i07 (.ix (ix [ 7]), .iy (iy [ 7]), .ox (ox [ 7]), .oy (oy [ 7]));
+    isqrt_slice #(.m (m >>  8 * 2)) i08 (.ix (ix [ 8]), .iy (iy [ 8]), .ox (ox [ 8]), .oy (oy [ 8]));
+    isqrt_slice #(.m (m >>  9 * 2)) i09 (.ix (ix [ 9]), .iy (iy [ 9]), .ox (ox [ 9]), .oy (oy [ 9]));
+    isqrt_slice #(.m (m >> 10 * 2)) i10 (.ix (ix [10]), .iy (iy [10]), .ox (ox [10]), .oy (oy [10]));
+    isqrt_slice #(.m (m >> 11 * 2)) i11 (.ix (ix [11]), .iy (iy [11]), .ox (ox [11]), .oy (oy [11]));
+    isqrt_slice #(.m (m >> 12 * 2)) i12 (.ix (ix [12]), .iy (iy [12]), .ox (ox [12]), .oy (oy [12]));
+    isqrt_slice #(.m (m >> 13 * 2)) i13 (.ix (ix [13]), .iy (iy [13]), .ox (ox [13]), .oy (oy [13]));
+    isqrt_slice #(.m (m >> 14 * 2)) i14 (.ix (ix [14]), .iy (iy [14]), .ox (ox [14]), .oy (oy [14]));
+    isqrt_slice #(.m (m >> 15 * 2)) i15 (.ix (ix [15]), .iy (iy [15]), .ox (ox [15]), .oy (oy [15]));
+
+    assign ix [ 0] = x;
+    assign ix [ 1] = ox [ 0];
+    assign ix [ 2] = ox [ 1];
+    assign ix [ 3] = ox [ 2];
+    assign ix [ 4] = ox [ 3];
+    assign ix [ 5] = ox [ 4];
+    assign ix [ 6] = ox [ 5];
+    assign ix [ 7] = ox [ 6];
+    assign ix [ 8] = ox [ 7];
+    assign ix [ 9] = ox [ 8];
+    assign ix [10] = ox [ 9];
+    assign ix [11] = ox [10];
+    assign ix [12] = ox [11];
+    assign ix [13] = ox [12];
+    assign ix [14] = ox [13];
+    assign ix [15] = ox [14];
+
+    assign iy [ 0] = 0;
+    assign iy [ 1] = oy [ 0];
+    assign iy [ 2] = oy [ 1];
+    assign iy [ 3] = oy [ 2];
+    assign iy [ 4] = oy [ 3];
+    assign iy [ 5] = oy [ 4];
+    assign iy [ 6] = oy [ 5];
+    assign iy [ 7] = oy [ 6];
+    assign iy [ 8] = oy [ 7];
+    assign iy [ 9] = oy [ 8];
+    assign iy [10] = oy [ 9];
+    assign iy [11] = oy [10];
+    assign iy [12] = oy [11];
+    assign iy [13] = oy [12];
+    assign iy [14] = oy [13];
+    assign iy [15] = oy [14];
+
+    assign y       = oy [15];
+
+endmodule
+</pre>
+
+<a href="http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/006_combinational/isqrt.v">http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/006_combinational/isqrt.v</a>
+
+<pre>
+// combinational structured
+
+module isqrt
+(
+    input  [31:0] x,
+    output [15:0] y
+);
+
+    localparam [31:0] m = 32'h4000_0000;
+
+    wire [31:0] ix [0:15], iy [0:15];
+    wire [31:0] ox [0:15], oy [0:15];
+
+    generate
+        genvar i;
+
+        for (i = 0; i < 16; i = i + 1)
+        begin : u
+            isqrt_slice #(.m (m >> i * 2)) inst
+            (
+                .ix (ix [i]),
+                .iy (iy [i]),
+                .ox (ox [i]),
+                .oy (oy [i])
+            );
+        end
+
+        for (i = 1; i < 16; i = i + 1)
+        begin : v
+            assign ix [i] = ox [i - 1];
+            assign iy [i] = oy [i - 1];
+        end
+
+    endgenerate
+
+
+    assign ix [0] = x;
+    assign iy [0] = 0;
+
+    assign y = oy [15];
+
+endmodule
+</pre>
+
+<a href="http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/007_pipelined_16_stages/isqrt_slice_comb.v">http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/007_pipelined_16_stages/isqrt_slice_comb.v</a>
+
+<a href="http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/007_pipelined_16_stages/isqrt_slice_reg.v">http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/007_pipelined_16_stages/isqrt_slice_reg.v</a>
+
+<pre>
+module isqrt_slice_reg
+(
+    input             clock,
+    input             reset_n,
+    input      [31:0] ix,
+    input      [31:0] iy,
+    output reg [31:0] ox,
+    output reg [31:0] oy
+);
+
+    parameter [31:0] m = 32'h4000_0000;
+
+    wire [31:0] cox, coy;
+
+    isqrt_slice_comb #(.m (m)) i
+    (
+        .ix ( ix  ),
+        .iy ( iy  ),
+        .ox ( cox ),
+        .oy ( coy )
+    );
+
+    always @(posedge clock or negedge reset_n)
+    begin
+        if (! reset_n)
+        begin
+            ox <= 0;
+            oy <= 0;
+        end
+        else
+        begin
+            ox <= cox;
+            oy <= coy;
+        end
+    end
+
+endmodule
+</pre>
+
+<img src="http://panchul.com/education/2013_05_19_isqrt/isqrt_slice_reg.png">
+
+<a href="http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/007_pipelined_16_stages/isqrt.v">http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/007_pipelined_16_stages/isqrt.v</a>
+
+<pre>
+// pipelined - 16 stages
+
+module isqrt
+(
+    input         clock,
+    input         reset_n,
+    input  [31:0] x,
+    output [15:0] y
+);
+
+    localparam [31:0] m = 32'h4000_0000;
+
+    wire [31:0] ix [0:15], iy [0:15];
+    wire [31:0] ox [0:15], oy [0:15];
+
+    generate
+        genvar i;
+
+        for (i = 0; i < 16; i = i + 1)
+        begin : u
+            isqrt_slice_reg #(.m (m >> i * 2)) inst
+            (
+                .clock   ( clock   ),
+                .reset_n ( reset_n ),
+                .ix      ( ix [i]  ),
+                .iy      ( iy [i]  ),
+                .ox      ( ox [i]  ),
+                .oy      ( oy [i]  )
+            );
+        end
+
+        for (i = 1; i < 16; i = i + 1)
+        begin : v
+            assign ix [i] = ox [i - 1];
+            assign iy [i] = oy [i - 1];
+        end
+
+    endgenerate
+
+
+    assign ix [0] = x;
+    assign iy [0] = 0;
+
+    assign y = oy [15];
+
+endmodule
+</pre>
+
+<img src="http://panchul.com/education/2013_05_19_isqrt/isqrt_16_stages_fragment.png">
+
+<a href="http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/006_combinational/testbench.v">http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/006_combinational/testbench.v</a>
+
+<a href="http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/003_sequential/testbench.v">http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/003_sequential/testbench.v</a>
+
+<a href="http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/008_pipelined/testbench.v">http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/008_pipelined/testbench.v</a>
+
+<img src="http://panchul.com/education/2013_05_19_isqrt/modelsim_wave_combinational.png">
+
+<img src="http://panchul.com/education/2013_05_19_isqrt/modelsim_wave_sequential.png">
+
+<img src="http://panchul.com/education/2013_05_19_isqrt/modelsim_wave_pipelined.png">
+
+<a href="http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/008_pipelined/isqrt.v">http://fpga-examples.googlecode.com/svn/trunk/showroom/isqrt/008_pipelined/isqrt.v</a>
+
+<pre>
+// pipelined with configurable number of stages
+
+module isqrt
+(
+    input         clock,
+    input         reset_n,
+    input  [31:0] x,
+    output [15:0] y
+);
+
+    parameter n_pipe_stages = 16;
+
+    localparam n_slices           = 16;
+    localparam n_slices_per_stage = n_slices / n_pipe_stages;
+
+    localparam [31:0] m = 32'h4000_0000;
+
+    wire [31:0] ix [0:15], iy [0:15];
+    wire [31:0] ox [0:15], oy [0:15];
+
+    generate
+        genvar i;
+
+        for (i = 0; i < 16; i = i + 1)
+        begin : u
+            if (i % n_slices_per_stage != n_slices_per_stage - 1)
+            begin
+                isqrt_slice_comb #(.m (m >> i * 2)) inst
+                (
+                    .ix      ( ix [i]  ),
+                    .iy      ( iy [i]  ),
+                    .ox      ( ox [i]  ),
+                    .oy      ( oy [i]  )
+                );
+            end
+            else
+            begin
+                isqrt_slice_reg #(.m (m >> i * 2)) inst
+                (
+                    .clock   ( clock   ),
+                    .reset_n ( reset_n ),
+                    .ix      ( ix [i]  ),
+                    .iy      ( iy [i]  ),
+                    .ox      ( ox [i]  ),
+                    .oy      ( oy [i]  )
+                );
+            end
+        end
+
+        for (i = 1; i < 16; i = i + 1)
+        begin : v
+            assign ix [i] = ox [i - 1];
+            assign iy [i] = oy [i - 1];
+        end
+
+    endgenerate
+
+
+    assign ix [0] = x;
+    assign iy [0] = 0;
+
+    assign y = oy [15];
+
+endmodule
+</pre>
+
+<img src="http://panchul.com/education/2013_05_19_isqrt/isqrt_4_stages_fragment.png">
+
+<img src="http://panchul.com/education/2013_05_19_isqrt/isqrt_8_stages_fragment.png">
+
+<img src="http://panchul.com/education/2013_05_19_isqrt/timing_16.png">
+
+<table border="1">
+    <tr>
+        <th># pipeline stages</th>
+        <th># combinational functions</th>
+        <th># registers</th>
+        <th>max frequency, MHz</th>
+    </tr>
+    <tr>
+        <td>1</td>
+        <td>82</td>
+        <td>5</td>
+        <td>n/a</td>
+    </tr>
+    <tr>
+        <td>2</td>
+        <td>82</td>
+        <td>15</td>
+        <td>79.38</td>
+    </tr>
+    <tr>
+        <td>3</td>
+        <td>142</td>
+        <td>38</td>
+        <td>74.31</td>
+    </tr>
+    <tr>
+        <td>4</td>
+        <td>102</td>
+        <td>48</td>
+        <td>127.18</td>
+    </tr>
+    <tr>
+        <td>5</td>
+        <td>94</td>
+        <td>111</td>
+        <td>175.53</td>
+    </tr>
+</table>

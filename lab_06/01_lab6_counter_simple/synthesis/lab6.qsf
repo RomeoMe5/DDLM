@@ -1,0 +1,61 @@
+set_global_assignment -name FAMILY "MAX 10"
+set_global_assignment -name DEVICE 10M50DAF484C7G
+set_global_assignment -name NUM_PARALLEL_PROCESSORS 4
+
+set_global_assignment -name TOP_LEVEL_ENTITY de10_lite
+
+set_global_assignment -name VERILOG_FILE lab6.v
+set_global_assignment -name VERILOG_FILE ../lab6.v
+set_global_assignment -name VERILOG_FILE ../../common/led7.v
+set_global_assignment -name VERILOG_FILE ../../common/clk_divider.v
+
+set_global_assignment -name SDC_FILE lab6.sdc
+
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to CLOCK*
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HEX*
+set_instance_assignment -name IO_STANDARD "3.3 V SCHMITT TRIGGER" -to KEY*
+
+#============================================================
+# CLOCK
+#============================================================
+set_location_assignment PIN_P11 -to CLOCK_50
+
+#============================================================
+# KEY
+#============================================================
+set_location_assignment PIN_B8 -to KEY[0]
+
+#============================================================
+# HEX0
+#============================================================
+
+set_location_assignment PIN_C14 -to HEX0[0]
+set_location_assignment PIN_E15 -to HEX0[1]
+set_location_assignment PIN_C15 -to HEX0[2]
+set_location_assignment PIN_C16 -to HEX0[3]
+set_location_assignment PIN_E16 -to HEX0[4]
+set_location_assignment PIN_D17 -to HEX0[5]
+set_location_assignment PIN_C17 -to HEX0[6]
+set_location_assignment PIN_D15 -to HEX0[7]
+
+#============================================================
+# HEX1
+#============================================================
+
+set_location_assignment PIN_C18 -to HEX1[0]
+set_location_assignment PIN_D18 -to HEX1[1]
+set_location_assignment PIN_E18 -to HEX1[2]
+set_location_assignment PIN_B16 -to HEX1[3]
+set_location_assignment PIN_A17 -to HEX1[4]
+set_location_assignment PIN_A18 -to HEX1[5]
+set_location_assignment PIN_B17 -to HEX1[6]
+set_location_assignment PIN_A16 -to HEX1[7]
+
+set_global_assignment -name LAST_QUARTUS_VERSION "16.1.2 Standard Edition"
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_file
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+
+
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

@@ -1,0 +1,38 @@
+set_global_assignment -name FAMILY "MAX 10"
+set_global_assignment -name DEVICE 10M50DAF484C7G
+set_global_assignment -name TOP_LEVEL_ENTITY lab7_7
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+
+set_location_assignment PIN_A7 -to clock
+set_location_assignment PIN_C10 -to push
+set_location_assignment PIN_C11 -to pop
+set_location_assignment PIN_D12 -to write_data[0]
+set_location_assignment PIN_C12 -to write_data[1]
+set_location_assignment PIN_A12 -to write_data[2]
+set_location_assignment PIN_B12 -to write_data[3]
+set_location_assignment PIN_A13 -to write_data[4]
+set_location_assignment PIN_A14 -to write_data[5]
+set_location_assignment PIN_B14 -to write_data[6]
+set_location_assignment PIN_F15 -to write_data[7]
+set_location_assignment PIN_A8 -to read_data[0]
+set_location_assignment PIN_A9 -to read_data[1]
+set_location_assignment PIN_A10 -to read_data[2]
+set_location_assignment PIN_B10 -to read_data[3]
+set_location_assignment PIN_D13 -to read_data[4]
+set_location_assignment PIN_C13 -to read_data[5]
+set_location_assignment PIN_E14 -to read_data[6]
+set_location_assignment PIN_D14 -to read_data[7]
+
+
+set_instance_assignment -name IO_STANDARD "3.3 V SCHMITT TRIGGER" -to clock
+set_instance_assignment -name IO_STANDARD "3.3 V SCHMITT TRIGGER" -to reset
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to push
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to pop
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to write_data*
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to read_data*
+set_global_assignment -name VERILOG_FILE ../../lab7_7.v
+set_global_assignment -name LAST_QUARTUS_VERSION "17.0.0 Lite Edition"
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

@@ -1,0 +1,6 @@
+set_global_assignment -name FAMILY "MAX 10"
+set_global_assignment -name DEVICE 10M08DAF484C8G
+set_global_assignment -name VERILOG_FILE ../../lab7_2.v
+set_global_assignment -name TOP_LEVEL_ENTITY lab7_2
+set_global_assignment -name ORIGINAL_QUARTUS_VERSION 17.0.0
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "21:29:35  JULY 25, 2018"

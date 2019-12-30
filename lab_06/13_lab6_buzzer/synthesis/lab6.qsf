@@ -1,0 +1,39 @@
+set_global_assignment -name FAMILY "MAX 10"
+set_global_assignment -name DEVICE 10M50DAF484C7G
+set_global_assignment -name NUM_PARALLEL_PROCESSORS 4
+
+set_global_assignment -name TOP_LEVEL_ENTITY de10_lite
+
+set_global_assignment -name SYSTEMVERILOG_FILE lab6.sv
+set_global_assignment -name VERILOG_FILE ../lab6.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../melody.sv
+set_global_assignment -name VERILOG_FILE ../../common/strobe_gen.v
+
+set_global_assignment -name SDC_FILE lab6.sdc
+
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to CLOCK*
+set_instance_assignment -name IO_STANDARD "3.3 V SCHMITT TRIGGER" -to KEY*
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO*
+
+
+#============================================================
+# CLOCK
+#============================================================
+
+set_location_assignment PIN_P11 -to CLOCK_50
+
+#============================================================
+# KEY
+#============================================================
+
+set_location_assignment PIN_B8 -to KEY[0]
+
+
+#============================================================
+# GPIO, GPIO connect to GPIO Default
+#============================================================
+
+set_location_assignment PIN_AA2 -to GPIO[35]
+
+
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_file

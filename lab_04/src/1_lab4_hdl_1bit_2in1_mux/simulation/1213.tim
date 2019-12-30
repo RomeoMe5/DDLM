@@ -1,0 +1,88 @@
+Timing Analyzer Settings
+     Time_Scale:        1.000000E-012
+     Time_Per_Division: 3.500000E+003
+     NumberDivisions:   10
+     Start_Time:        0.0
+     End_Time:          35000.0
+Digital_Signal
+     Position:          1
+     Height:            24
+     Space_Above:       24
+     Name:              a
+     Start_State:       0
+     Number_Edges:      0
+     Rise_Time:         0.2
+     Fall_Time:         0.2
+Digital_Signal
+     Position:          2
+     Height:            24
+     Space_Above:       24
+     Name:              b
+     Start_State:       1
+     Number_Edges:      2
+     Rise_Time:         0.2
+     Fall_Time:         0.2
+          Edge:               25000.0 0
+          Edge:               30000.0 1
+Digital_Signal
+     Position:          3
+     Height:            24
+     Space_Above:       24
+     Name:              sel
+     Start_State:       X
+     Number_Edges:      2
+     Rise_Time:         0.2
+     Fall_Time:         0.2
+          Edge:               5000.0 0
+          Edge:               15000.0 1
+Digital_Signal
+     Position:          4
+     Height:            24
+     Space_Above:       24
+     Name:              y_case
+     Start_State:       X
+     Number_Edges:      4
+     Rise_Time:         0.2
+     Fall_Time:         0.2
+          Edge:               5000.0 0
+          Edge:               15000.0 1
+          Edge:               25000.0 0
+          Edge:               30000.0 1
+Digital_Signal
+     Position:          5
+     Height:            24
+     Space_Above:       24
+     Name:              y_comb
+     Start_State:       X
+     Number_Edges:      4
+     Rise_Time:         0.2
+     Fall_Time:         0.2
+          Edge:               5000.0 0
+          Edge:               15000.0 1
+          Edge:               25000.0 0
+          Edge:               30000.0 1
+Digital_Signal
+     Position:          6
+     Height:            24
+     Space_Above:       24
+     Name:              y_if
+     Start_State:       0
+     Number_Edges:      3
+     Rise_Time:         0.2
+     Fall_Time:         0.2
+          Edge:               15000.0 1
+          Edge:               25000.0 0
+          Edge:               30000.0 1
+Digital_Signal
+     Position:          7
+     Height:            24
+     Space_Above:       24
+     Name:              y_sel
+     Start_State:       X
+     Number_Edges:      4
+     Rise_Time:         0.2
+     Fall_Time:         0.2
+          Edge:               5000.0 0
+          Edge:               15000.0 1
+          Edge:               25000.0 0
+          Edge:               30000.0 1
