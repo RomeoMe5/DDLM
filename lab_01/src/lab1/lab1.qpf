@@ -1,0 +1,6 @@
+QUARTUS_VERSION = "17.0"
+DATE = "12:11:55  November 06, 2017"
+
+# Revisions
+
+PROJECT_REVISION = "lab1"
