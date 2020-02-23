@@ -69,8 +69,8 @@ set_location_assignment PIN_B14 -to SW[8]
 set_location_assignment PIN_F15 -to SW[9]
 
 # project files
-set_global_assignment -name VERILOG_FILE ../../lab5.v
-set_global_assignment -name SEARCH_PATH  ../../common/
+set_global_assignment -name VERILOG_FILE ../lab5.v
+set_global_assignment -name SEARCH_PATH  ../common/
 
 set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "2.5 V"
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
