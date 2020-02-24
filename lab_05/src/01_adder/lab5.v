@@ -3,7 +3,7 @@ module lab5
     input  [9:0] SW,
     output [9:0] LEDR
 );
-    //WIDTH	no greater then 4
+    //WIDTH	no greater than 4
     parameter WIDTH = 2;
     
 	 //adder
