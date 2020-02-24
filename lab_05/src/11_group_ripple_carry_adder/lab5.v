@@ -51,7 +51,7 @@ module lab5
     //adder
     group_ripple_carry_adder
     #(
-        .GROUP_COUNT(GROUP_COUNT),
+        .BLOCK_COUNT(GROUP_COUNT),
         .WIDTH      (GROUP_WIDTH)
     )
     i_RCA
