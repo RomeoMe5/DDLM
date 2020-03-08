@@ -1,6 +1,6 @@
 // Frequency clock divider
 
-module clk_div
+module cnt_div
 #(
   parameter DIV_CNT=10,
   parameter WIDTH = $clog2(DIV_CNT)
