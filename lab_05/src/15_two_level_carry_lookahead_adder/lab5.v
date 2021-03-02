@@ -5,9 +5,9 @@ module lab5
     input  [9:0] SW,
     output [9:0] LEDR
 );
-    parameter GROUP_0_WIDTH = 2,
-    parameter GROUP_1_WIDTH = 2,
-    parameter GROUP_COUNT = 2
+    parameter GROUP_0_WIDTH = 2;
+    parameter GROUP_1_WIDTH = 2;
+    parameter GROUP_COUNT = 2;
     parameter WIDTH = GROUP_0_WIDTH * GROUP_1_WIDTH * GROUP_COUNT;
     //WIDTH should be no more than 8
 
