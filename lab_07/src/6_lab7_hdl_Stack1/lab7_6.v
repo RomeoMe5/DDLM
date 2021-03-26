@@ -39,7 +39,7 @@ module lab7_6
                 stack [i] <= stack [i + 1];
 
             stack [STACK_SIZE - 1] <= 0;
-				read_data = stack [0];
+	    read_data <= stack [0];
         end
     end
 
