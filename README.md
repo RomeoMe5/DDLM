@@ -37,9 +37,9 @@ ISBN 978-5-97060-850-0**
 ## Имитатор платы DESim от Intel
 Данное приложение позволяет выполнять компиляцию и моделирование кода на языке Verilog, обеспечивая взаимодействие с виртуальной платой через графический интерфейс, т. е. не задействуя физическое оборудование. Интерфейс предоставляет основные возможности платы **De1-SoC**.   
 Примеры исходных кодов, которые разбираются в книге, адаптированы под это приложение и находятся в соответствующих папках с названием DeSim. В каждой из них лежит пакетный файл make_desim_project.bat, который автоматически собирает проект под запуск в DESim.    
-Руководства по DESim, переведенные на русский язык, находятся в папке **Manuals** данного репозитария: 
-![https://github.com/RomeoMe5/DDLM/tree/master/Manuals](https://github.com/RomeoMe5/DDLM/tree/master/Manuals)    
-**Оригинальные руководства по DESim**: [https://github.com/fpgacademy/DESim/releases](https://github.com/fpgacademy/DESim/releases)
+Руководства по DESim, переведенные на русский язык, находятся в папке **Manuals** данного репозитария:    
+![https://github.com/RomeoMe5/DDLM/tree/master/Manuals](https://github.com/RomeoMe5/DDLM/tree/master/Manuals)   
+**Оригинальные руководства по DESim**: ![https://github.com/fpgacademy/DESim/releases](https://github.com/fpgacademy/DESim/releases)
 
 ## Контакты для связи
 Любые ошибки, неточности или исправления, а также предложения о сотрудничестве присылайте на почту [a.romanov@hse.ru](https://github.com/RomeoMe5 "Александр Романов").
